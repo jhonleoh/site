@@ -1,0 +1,25 @@
+import PostLayout from '../../components/mdx/PostLayout.tsx'
+
+export const meta = {
+    title: 'hacking posts in 2023',
+    author: 'ryan schachte',
+    tag: 'automation',
+    date: 'January 1, 2023',
+    publish_after: ''
+}
+
+# My MDX page
+
+This is a list in markdown:
+
+```js
+const hello = () => { console.log("ergheoiorigheo rh")}
+```
+
+- One
+- Two
+- Three
+
+Checkout my React component:
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
