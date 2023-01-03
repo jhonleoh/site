@@ -9,7 +9,7 @@ export default function Document() {
             href="/syntax/earth.css"
           ></link>
         </Head>
-      <body className="font-inter min-h-screen dark:bg-dark-background dark:text-dark-text-primary bg-gradient-to-br from-gray-800 to-gray-900">
+      <body className="font-inter h-full min-h-screen dark:bg-dark-background dark:text-dark-text-primary bg-gradient-to-br from-gray-800 to-gray-900">
         <Main />
         <NextScript />
       </body>

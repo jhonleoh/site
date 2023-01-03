@@ -18,7 +18,7 @@ const Layout: React.FC<Props> = ({ children }) => {
     return (
       <>
         <div className="absolute w-full h-2 bg-gradient-to-r from-amber-500 to-pink-500" />
-        <div className="flex flex-col flex-1 mx-auto w-full max-w-[1400px]">
+        <div className="flex flex-col flex-1 mx-auto w-full max-w-[1400px] min-h-screen">
           <Navigation />
           {children}
           <Footer />

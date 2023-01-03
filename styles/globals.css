@@ -8,6 +8,7 @@
 
 div#__next {
   @apply h-full;
+  @apply min-h-screen;
 }
 
 main {
