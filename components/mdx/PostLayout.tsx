@@ -25,8 +25,8 @@ const PostLayout: React.FC<Props> = ({ meta, children }) => {
       </Head>
       <Layout>
         {/* Article Heading */}
-        <div className="flex flex-col w-full justify-start text-left mt-12 space-y-2 px-5 pb-8">
-          <span className="text-2xl font-semibold text-light-text-primary dark:text-slate-300 drop-shadow-2xl hover:cursor-default">
+        <div className="flex flex-col w-full justify-start text-left mt-10 space-y-2 px-5 pb-8">
+          <span className="text-3xl tracking-tight font-semibold text-light-text-primary dark:text-slate-400 drop-shadow-2xl hover:cursor-default">
             {title}
           </span>
           <span className="text-xs font-fira text-light-text-primary dark:text-slate-500 hover:cursor-default pt-1">
