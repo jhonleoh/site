@@ -1,4 +1,4 @@
-# Ryan Schachte's Blog
+# Ryan Schachte's Blog - 2023
 
 ## Install
 `npm i && npm run dev`
@@ -8,3 +8,4 @@
 
 ## MDX 
 - [Component Definitions](https://mdxjs.com/table-of-components/)
+
