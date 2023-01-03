@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import ToggleTheme from '../util/theme'
 
 // Navigation: Main nav header & link wrapper present on every page
 const Navigation: React.FC = () => {
@@ -17,7 +18,7 @@ const Navigation: React.FC = () => {
                 hover:cursor-pointer ${
                   router.pathname == target
                     ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                    : 'text-[#909498]'
+                    : 'text-light-inactive dark:text-dark-inactive'
                 }`}
         >
           {target == undefined ? 'home' : `${target}`}
@@ -42,7 +43,7 @@ const Navigation: React.FC = () => {
           </div>
         </div>
       </Link>
-      <span className="font-fira sm:pl-3 mt-5 text-xs text-[#B3B4B4]">
+      <span className="font-fira sm:pl-3 mt-5 text-xs text-light-text-primary dark:text-dark-inactive">
         {'$ sh echo “blah blah blah” > /dev/null'}
       </span>
 
@@ -56,7 +57,7 @@ const Navigation: React.FC = () => {
                             hover:cursor-pointer ${
                               router.pathname == '/'
                                 ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-[#909498]'
+                                : 'text-light-text-primary dark:text-dark-inactive'
                             }`}
               >
                 Home
@@ -72,7 +73,7 @@ const Navigation: React.FC = () => {
                             hover:cursor-pointer ${
                               router.pathname == '/contact'
                                 ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-[#909498]'
+                                : 'text-light-text-primary dark:text-dark-inactive'
                             }`}
               >
                 youtube
@@ -84,17 +85,28 @@ const Navigation: React.FC = () => {
                             hover:cursor-pointer ${
                               router.pathname == '/contact'
                                 ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-[#909498]'
+                                : 'text-light-text-primary dark:text-dark-inactive'
                             }`}
               >
                 contact
               </span>
             </Link>
+            <span
+              onClick={() => ToggleTheme()}
+              className={`block sm:hidden hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
+                            hover:cursor-pointer ${'text-light-text-primary dark:text-dark-inactive'}`}
+            >
+              color
+            </span>
           </div>
-          <span className="hidden sm:block pr-5">
+          <span className="sm:pr-5 hidden sm:block" onClick={() => ToggleTheme()}>
             <img
-              src="/icons/rss_feed.svg"
-              className="w-6 hover:opacity-50 hover:cursor-pointer"
+              src="/icons/sun.svg"
+              className="w-6 hover:opacity-50 hover:cursor-pointer block dark:hidden"
+            />
+            <img
+              src="/icons/sun_dark.svg"
+              className="w-6 hover:opacity-50 hover:cursor-pointer hidden dark:block"
             />
           </span>
         </div>

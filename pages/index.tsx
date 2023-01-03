@@ -58,7 +58,6 @@ export async function getStaticProps() {
   )
 
   postMetadata = sortBasedOnDate(postMetadata)
-
   return {
     props: {
       postMetadata: postMetadata,

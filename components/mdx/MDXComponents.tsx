@@ -15,9 +15,9 @@ const MDXComponents = {
     return <Tick>{props.children}</Tick>
   },
   p: ({ children }: any) => (
-    <p className="leading-8 mt-5 text-slate-200">{children}</p>
+    <p className="leading-9 text-md mt-5 text-light-text-primary dark:text-slate-200">{children}</p>
   ),
-  li: ({ children }: any) => <li className="leading-8">{children}</li>,
+  li: ({ children }: any) => <li className="leading-8 sm:leading-8">{children}</li>,
   ul: ({ children }: any) => <ul className="pl-5 list-disc">{children}</ul>,
   ol: ({ children }: any) => <ol className="pl-5 list-decimal">{children}</ol>,
   img: (props: any) => {
@@ -28,9 +28,9 @@ const MDXComponents = {
             <Image src={props.src} alt={props.alt} width={800} height={800} />
           </Link>
         </div>
-        <div className="flex bg-slate-700 items-center justify-between opacity-1 group-hover:opacity-1 text-white w-full h-full text-xs p-1">
+        <div className="flex text-light-text-primary dark:bg-slate-700 items-center justify-between opacity-1 group-hover:opacity-1 dark:text-white w-full h-full text-xs p-1">
           <span>{props.alt !== 'Untitled' && props.alt}</span>
-          <span className="text-slate-400">Click to see full size</span>
+          <span className="text-light-text-primary dark:text-slate-400">Click to see full size</span>
         </div>
       </div>
     )
@@ -41,7 +41,7 @@ const MDXComponents = {
         href={props.href}
         target="_blank"
         rel="noreferrer"
-        className="text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300"
+        className="text-light-text-primary font-semibold dark:font-normal dark:text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300"
       >
         {props.children}
       </a>
