@@ -18,9 +18,9 @@ export default function Home({ postMetadata }: { postMetadata: PostMetadata[] })
     <>
       <Layout>
         <div className="flex flex-col space-y-12 md:space-y-0 mt-12 md:grid md:grid-cols-12 md:gap-y-8 md:gap-x-12 md:w-2/3 pl-8">
-          {postMetadata.map(metadata => {
+          {postMetadata.map((metadata, i)=> {
             const { title, author, tag, date, publish_after, link } = metadata
-            return (<Article title={title} date={date} tag={tag} link={link} />)
+            return (<Article key={i} title={title} date={date} tag={tag} link={link} />)
           })}
         </div>
       </Layout>

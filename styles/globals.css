@@ -6,12 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  @apply h-full;
-}
-body {
-  @apply h-full;
-}
 div#__next {
   @apply h-full;
 }
