@@ -15,7 +15,7 @@ export const H2: React.FC<Props> = ({ children }) => (
 )
 
 export const H3: React.FC<Props> = ({ children }) => (
-  <h3 className="mt-5 text-md font-semibold text-light-text-primary dark:text-slate-300 drop-shadow-2xl hover:cursor-default">
+  <h3 className="mt-5 text-base font-semibold text-light-text-primary dark:text-slate-300 drop-shadow-2xl hover:cursor-default">
     {children}
   </h3>
 )

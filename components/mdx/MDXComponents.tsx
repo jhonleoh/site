@@ -15,7 +15,7 @@ const MDXComponents = {
     return <Tick>{props.children}</Tick>
   },
   p: ({ children }: any) => (
-    <p className="leading-7 text-md mt-5 font-normal sm:font-normal text-light-text-primary dark:text-slate-200">{children}</p>
+    <p className="leading-7 text-base mt-5 font-normal sm:font-normal text-light-text-primary dark:text-slate-200">{children}</p>
   ),
   li: ({ children }: any) => <li className="leading-7 mt-3 sm:leading-7">{children}</li>,
   ul: ({ children }: any) => <ul className="mt-5 pl-5 text-md font-normal sm:font-normal leading-2 list-disc">{children}</ul>,
