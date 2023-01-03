@@ -15,10 +15,10 @@ const MDXComponents = {
     return <Tick>{props.children}</Tick>
   },
   p: ({ children }: any) => (
-    <p className="leading-9 text-md mt-5 text-light-text-primary dark:text-slate-200">{children}</p>
+    <p className="leading-8 text-lg mt-5 font-light sm:font-normal text-light-text-primary dark:text-slate-200">{children}</p>
   ),
-  li: ({ children }: any) => <li className="leading-8 sm:leading-8">{children}</li>,
-  ul: ({ children }: any) => <ul className="pl-5 list-disc">{children}</ul>,
+  li: ({ children }: any) => <li className="leading-8 mt-3 sm:leading-8">{children}</li>,
+  ul: ({ children }: any) => <ul className="mt-5 pl-5 text-lg font-light sm:font-normal leading-8 list-disc">{children}</ul>,
   ol: ({ children }: any) => <ol className="pl-5 list-decimal">{children}</ol>,
   img: (props: any) => {
     return (

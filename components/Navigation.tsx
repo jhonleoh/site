@@ -50,7 +50,7 @@ const Navigation: React.FC = () => {
       {/* Links and Nav */}
       <div className="flex uppercase space-x-7 sm:pl-3 font-semibold border-y border-slate-600 py-6 mt-6">
         <div className="flex justify-center sm:justify-between w-full">
-          <div className="text-lg sm:text-md flex space-x-12 sm:space-x-8 justify-center sm:justify-start items-center">
+          <div className="text-lg sm:text-md flex space-x-7 sm:space-x-8 justify-center sm:justify-start items-center">
             <Link href={`/`}>
               <span
                 className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
@@ -93,13 +93,23 @@ const Navigation: React.FC = () => {
             </Link>
             <span
               onClick={() => ToggleTheme()}
-              className={`block sm:hidden hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
+              className={`opacity-80 block sm:hidden hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
                             hover:cursor-pointer ${'text-light-text-primary dark:text-dark-inactive'}`}
             >
-              color
+              <img
+                src="/icons/sun.svg"
+                className="w-6 hover:opacity-50 hover:cursor-pointer block dark:hidden"
+              />
+              <img
+                src="/icons/sun_dark.svg"
+                className="w-6 hover:opacity-50 hover:cursor-pointer hidden dark:block"
+              />
             </span>
           </div>
-          <span className="sm:pr-5 hidden sm:block" onClick={() => ToggleTheme()}>
+          <span
+            className="sm:pr-5 hidden sm:block"
+            onClick={() => ToggleTheme()}
+          >
             <img
               src="/icons/sun.svg"
               className="w-6 hover:opacity-50 hover:cursor-pointer block dark:hidden"
