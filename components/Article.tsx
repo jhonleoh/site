@@ -24,7 +24,9 @@ const Article: React.FC<Props> = ({ title, date, tag, link }) => {
                 {/* Can support multiple tags in theory, so we wrap */}
                 <div className="flex space-x-1 text-xs text-[#B3B4B4] font-fira">
                     <img src="/icons/tag.svg" className="w-2" />
-                    <span>{tag}</span>
+                    <Link href={{ pathname: '/search', query: { query: tag } }}>
+                        <span>{tag}</span>
+                    </Link>
                 </div>
             </div>
         </div>

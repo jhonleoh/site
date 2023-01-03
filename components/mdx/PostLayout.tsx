@@ -5,6 +5,7 @@ import { MDXProvider } from '@mdx-js/react'
 import Layout from '../Layout'
 import MDXComponents from './MDXComponents'
 import Head from 'next/head'
+import Link from 'next/link'
 
 type Props = {
   children?: JSX.Element | JSX.Element[]
@@ -31,15 +32,17 @@ const PostLayout: React.FC<Props> = ({ meta, children }) => {
           <span className="text-xs font-fira text-slate-500 hover:cursor-default">
             written by: {author}
           </span>
-          <div className="flex justify-center opacity-80 space-x-2 font-fira pt-1 group hover:cursor-pointer">
-            <img
-              src="/icons/tag.svg"
-              className="w-3 opacity-50 group-hover:opacity-100"
-            />
-            <span className="text-[.7rem] text-slate-500 group-hover:text-slate-300">
-              {tag}
-            </span>
-          </div>
+          <Link href={{ pathname: '/search', query: { query: tag } }}>
+            <div className="flex justify-center opacity-80 space-x-2 font-fira pt-1 group hover:cursor-pointer">
+              <img
+                src="/icons/tag.svg"
+                className="w-3 opacity-50 group-hover:opacity-100"
+              />
+              <span className="text-[.7rem] text-slate-500 group-hover:text-slate-300">
+                {tag}
+              </span>
+            </div>
+          </Link>
           <div className="mt-5 pl-8 border border-slate-800 w-full mx-auto" />
         </div>
 
