@@ -1,6 +1,6 @@
 # Ryan Schachte's Blog - 2023
 
-## Install
+## Local Dev
 `npm i && npm run dev`
 
 ## Themes
