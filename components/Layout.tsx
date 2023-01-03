@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Footer from './Footer'
 import Navigation from './Navigation'
+import Head from 'next/head'
 
 type Props = {
   children?: JSX.Element | JSX.Element[]

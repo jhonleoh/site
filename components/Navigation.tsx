@@ -47,7 +47,7 @@ const Navigation: React.FC = () => {
       {/* Links and Nav */}
       <div className="flex uppercase space-x-7 sm:pl-3 font-semibold border-y border-slate-600 py-6 mt-6">
         <div className="flex justify-center sm:justify-between w-full">
-          <div className="flex space-x-3 sm:space-x-8 justify-center sm:justify-start items-center">
+          <div className="text-lg sm:text-sm flex space-x-12 sm:space-x-8 justify-center sm:justify-start items-center">
             <Link href={`/`}>
               <span
                 className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 

@@ -19,11 +19,12 @@ const MDXComponents = {
   li: ({ children }: any) => <li className="leading-8">{children}</li>,
   ul: ({ children }: any) => <ul className="pl-5 list-disc">{children}</ul>,
   ol: ({ children }: any) => <ol className="pl-5 list-decimal">{children}</ol>,
-  a: ({ children }: any) => (
-    <a className="text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300">
-      {children}
+  a: (props: any) => {
+    return (
+    <a href={props.href} target="_blank" className="text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300">
+      {props.children}
     </a>
-  ),
+  )},
 }
 
 export default MDXComponents
