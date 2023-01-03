@@ -21,7 +21,7 @@ const MDXComponents = {
   ol: ({ children }: any) => <ol className="pl-5 list-decimal">{children}</ol>,
   a: (props: any) => {
     return (
-    <a href={props.href} target="_blank" className="text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300">
+    <a href={props.href} target="_blank" rel="noreferrer" className="text-blue-200 hover:cursor-pointer underline underline-offset-8 hover:text-slate-500 transition-all duration-300">
       {props.children}
     </a>
   )},
