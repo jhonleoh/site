@@ -23,10 +23,10 @@ export default function Search({ postMetadata }: { postMetadata: PostMetadata[] 
   return (
     <>
       <Layout>
-        <div className="pl-8 mt-5 text-slate-400 font-fira">
+        <div className="px-8 mt-5 text-slate-400 font-fira">
         results for: <span className="underline underline-offset-8">{tag}</span>
         </div>
-        <div className="flex flex-col space-y-8 mt-12 md:w-2/3 pl-8">
+        <div className="flex flex-col space-y-8 mt-12 md:w-2/3 px-8">
           {matchedResults.map((metadata, i)=> {
             const { title, author, tag, date, publish_after, link } = metadata
             return (<Article key={i} title={title} date={date} tag={tag} link={link} />)

@@ -25,7 +25,7 @@ export default function Home({
         <title>Ryan Schachte's Blog</title>
       </Head>
       <Layout>
-        <div className="flex flex-col space-y-8 md:space-y-0 mt-12 md:grid md:grid-cols-12 md:gap-y-8 md:gap-x-12 md:w-2/3 pl-8">
+        <div className="flex flex-col space-y-8 md:space-y-0 mt-12 md:grid md:grid-cols-12 md:gap-y-8 md:gap-x-12 md:w-2/3 pl-8 pr-8">
           {postMetadata.map((metadata, i) => {
             const { title, author, tag, date, publish_after, link } = metadata
             return (
