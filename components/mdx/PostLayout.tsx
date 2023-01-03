@@ -25,15 +25,15 @@ const PostLayout: React.FC<Props> = ({ meta, children }) => {
       </Head>
       <Layout>
         {/* Article Heading */}
-        <div className="flex flex-col w-full justify-center text-center mt-5 space-y-3 px-5 ">
+        <div className="flex flex-col w-full justify-start text-left mt-12 space-y-2 px-5 pb-8">
           <span className="text-2xl font-semibold text-light-text-primary dark:text-slate-300 drop-shadow-2xl hover:cursor-default">
             {title}
           </span>
-          <span className="text-xs font-fira text-light-text-primary dark:text-slate-500 hover:cursor-default">
+          <span className="text-xs font-fira text-light-text-primary dark:text-slate-500 hover:cursor-default pt-1">
             written by: {author}
           </span>
           <Link href={{ pathname: '/search', query: { query: tag } }}>
-            <div className="flex justify-center opacity-80 space-x-2 font-fira pt-1 group hover:cursor-pointer">
+            <div className="flex justify-start opacity-80 font-fira pt-1 group hover:cursor-pointer ">
               <img
                 src="/icons/tag_dark.svg"
                 className="w-3 inline dark:hidden"
@@ -42,16 +42,16 @@ const PostLayout: React.FC<Props> = ({ meta, children }) => {
                 src="/icons/tag.svg"
                 className="w-3 opacity-50 group-hover:opacity-100 hidden dark:inline"
               />
-              <span className="text-[.7rem] text-slate-500 group-hover:text-slate-300">
+              <span className="text-[.7rem] text-slate-500 group-hover:text-slate-300 pl-2">
                 {tag}
               </span>
             </div>
           </Link>
-          <div className="mt-5 pl-8 border border-slate-800 w-full mx-auto" />
+          {/* <hr className="w-full bg-slate-800 border-slate-600 border-.5 self-end"/> */}
         </div>
 
         {/* Content */}
-        <div className="px-4 sm:px-8">{children}</div>
+        <div className="px-5 sm:px-5">{children}</div>
       </Layout>
     </MDXProvider>
   )

@@ -17,8 +17,7 @@ const Navigation: React.FC = () => {
           className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
                 hover:cursor-pointer ${
                   router.pathname == target
-                    ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                    : 'text-light-inactive dark:text-dark-inactive'
+                    && 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
                 }`}
         >
           {target == undefined ? 'home' : `${target}`}
@@ -56,8 +55,7 @@ const Navigation: React.FC = () => {
                 className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
                             hover:cursor-pointer ${
                               router.pathname == '/'
-                                ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-light-text-primary dark:text-dark-inactive'
+                                && 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
                             }`}
               >
                 Home
@@ -69,12 +67,7 @@ const Navigation: React.FC = () => {
               rel="noreferrer"
             >
               <span
-                className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
-                            hover:cursor-pointer ${
-                              router.pathname == '/contact'
-                                ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-light-text-primary dark:text-dark-inactive'
-                            }`}
+                className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent`}
               >
                 youtube
               </span>
@@ -84,8 +77,7 @@ const Navigation: React.FC = () => {
                 className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent 
                             hover:cursor-pointer ${
                               router.pathname == '/contact'
-                                ? 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
-                                : 'text-light-text-primary dark:text-dark-inactive'
+                                && 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'
                             }`}
               >
                 contact

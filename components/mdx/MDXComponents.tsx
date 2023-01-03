@@ -15,17 +15,17 @@ const MDXComponents = {
     return <Tick>{props.children}</Tick>
   },
   p: ({ children }: any) => (
-    <p className="leading-8 text-lg mt-5 font-light sm:font-normal text-light-text-primary dark:text-slate-200">{children}</p>
+    <p className="leading-7 text-md mt-5 font-normal sm:font-normal text-light-text-primary dark:text-slate-200">{children}</p>
   ),
-  li: ({ children }: any) => <li className="leading-8 mt-3 sm:leading-8">{children}</li>,
-  ul: ({ children }: any) => <ul className="mt-5 pl-5 text-lg font-light sm:font-normal leading-8 list-disc">{children}</ul>,
+  li: ({ children }: any) => <li className="leading-7 mt-3 sm:leading-5">{children}</li>,
+  ul: ({ children }: any) => <ul className="mt-5 pl-5 text-md font-normal sm:font-normal leading-2 list-disc">{children}</ul>,
   ol: ({ children }: any) => <ol className="pl-5 list-decimal">{children}</ol>,
   img: (props: any) => {
     return (
-      <div className="relative max-w-1/3 w-fit group">
+      <div className="relative max-w-1/3 w-fit group shadow-md">
         <div className="relative group-hover:opacity-50 duration-300 transition-all ">
           <Link href={props.src} target="_blank" rel="noreferrer">
-            <Image src={props.src} alt={props.alt} width={800} height={800} />
+            <Image src={props.src} alt={props.alt} width={550} height={550} />
           </Link>
         </div>
         <div className="flex text-light-text-primary dark:bg-slate-700 items-center justify-between opacity-1 group-hover:opacity-1 dark:text-white w-full h-full text-xs p-1">
