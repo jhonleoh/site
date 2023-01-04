@@ -25,7 +25,12 @@ const PostLayout: React.FC<Props> = ({ meta, children }) => {
       </Head>
       <Layout>
         {/* Article Heading */}
-        <div className="flex flex-col w-full justify-start text-left mt-10 space-y-2 px-5 pb-8">
+        <div
+          className="fixed z-30 w-full h-fit bottom-0 flex justify-end items-center px-5 hover:cursor-pointer hover:opacity-50 text-xl space-x-3 pb-2">
+          <span onClick={() => window.scrollTo(0, 0)}>⬆️</span> ️
+          <span className="text-xs text-slate-400" onClick={() => window.scrollTo(0, 0)}>scroll to top️</span> ️
+        </div>
+        <div className="relative flex flex-col w-full justify-start text-left mt-10 space-y-2 px-5 pb-8">
           <span className="text-3xl tracking-tight font-semibold text-light-text-primary dark:text-slate-400 drop-shadow-2xl hover:cursor-default">
             {title}
           </span>
