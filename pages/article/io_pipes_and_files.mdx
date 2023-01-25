@@ -1,0 +1,546 @@
+import PostLayout from '../../components/mdx/PostLayout.tsx'
+
+export const meta = {
+    title: 'having fun with IO pipes and chunked file uploads in Go',
+    author: 'ryan schachte',
+    tag: 'Go',
+    date: 'January 24, 2023',
+    publish_after: ''
+}
+
+IO pipes provide a mechanism for redirecting data between processes or threads, enabling powerful communication in multi-threaded systems. In this article, we will explore using IO pipes to construct a concurrent uploader for cloud storage providers such as S3 or [Cloudflare R2](https://developers.cloudflare.com/r2/get-started/).
+
+## Intuition
+
+Let’s say we want a program that grabs DNS records for a given domain and outputs IP addresses associated with a particular domain. We might hack together a simple program like the following.
+
+```go
+// grab server IP addresses
+cmd := exec.Command("dig", "ryan-schachte.com", "+short")
+cmd.Run()
+```
+
+Running this program doesn’t output anything because we haven’t redirected the output to anything. This leads us to a larger question, how do we get output to show up?
+
+When using shells like `Bash`, we have 3 options available when it comes to input and output data streams. 
+
+- `0` - `stdin`
+- `1` - `stdout`
+- `2` - `stderr`
+
+When sending streams of data to the `stdout` or `stderr` [file descriptors](https://en.wikipedia.org/wiki/File_descriptor), they are printed to the screen directly. However, we can also redirect output to a file if an error occurs or we can redirect output to a file for cases that aren’t errors. 
+Let’s validate our intuition so far by writing a simple bash program.
+
+```bash
+#!/bin/bash
+
+input=$1
+
+if [ "$input" == "test_error" ]; then
+  echo "output" >&2
+  exit 1
+elif [ "$input" == "test_success" ]; then
+  echo "output"
+  exit 0
+else
+  echo "Input is neither test_error nor test_success" >&2
+  exit 1
+fi
+```
+
+Above, we take in user input and redirect errors to the `stderr` file descriptor. In the case of a success input, we redirect the output message to the `stdout` file descriptor. Remember, [file descriptors](https://en.wikipedia.org/wiki/File_descriptor) are just integers representing open files (see above). 
+Let’s run a couple sample commands and validate that this is working. 
+
+`./fd_test.sh test_error >&2`
+
+Now, this isn’t too interesting because we just see what we expect, which is: 
+
+`Error: Input is test_error` 
+
+This is basically saying, take the output of the program and redirect that output to `stderr` which prints to the terminal by default.
+
+But what happens if we instead tell it to take any output from `stderr` and redirect it to `/dev/null` like so:
+
+ `./fd_test.sh test_error 2>/dev/null`
+
+Nothing! In this case, we take the contents and redirect it to `/dev/null` instead of `stderr` and as a result, we see nothing. Interesting.. Let’s run a couple more tests. 
+
+What happens if we take error data and redirect it to stdout and take success data and redirect it to `/dev/null`?
+
+```bash
+./fd_test.sh test_error 2>&1 1>/dev/null
+./fd_test.sh test_success 1>/dev/null 2>&1
+```
+
+- Invocation 1:
+    - Redirect errors to standard out and print the output
+    - Redirect successes to `/dev/null`
+- Invocation 2:
+    - Redirect success messages to `/dev/null`
+    - Redirect errors to `stdout`
+
+In the first call, we see the error because the program output was an error and we print it to stdout. However, in the second call, despite having a successful run, we see nothing. This is because stdout is getting redirect to `/dev/null` and errors are printing to `stdout` but there are no errors!
+
+This is very useful for logging software, error handling and output filtering due to proper classification of program output. 
+
+## Sample Application
+
+Ok, getting back to the program we started with, which didn’t output anything to the console. 
+
+```go
+// grab server IP addresses
+cmd := exec.Command("dig", "ryan-schachte.com", "+short")
+cmd.Run()
+```
+
+Now that we know a bit more about [file descriptors](https://en.wikipedia.org/wiki/File_descriptor) and output, let’s redirect this output to `stdout`. 
+
+```go
+// grab server IP addresses
+cmd := exec.Command("dig", "ryan-schachte.com", "+short")
+cmd.Stdout = os.Stdout
+cmd.Run()
+```
+
+In this case, we are just redirecting the output directly to the terminal, let’s give it a shot:
+
+```bash
+go run main.go
+
+104.18.25.143
+104.18.24.143
+```
+
+Neat! Now, that begs a larger question, does it always need to be the terminal stdout? What if I wanted to pipe it directly into a file? 
+
+```go
+// grab server IP addresses
+file, _ := os.OpenFile("ip_addresses.txt", os.O_CREATE|os.O_WRONLY, 0666)
+defer file.Close()
+
+cmd := exec.Command("dig", "ryan-schachte.com", "+short")
+cmd.Stdout = file
+cmd.Run()
+```
+
+Now, the only difference here is that I’m telling stdout to be the file instead of the terminal. Let’s rerun.
+
+```bash
+go run main.go
+```
+
+No output! This is expected, but where did the output go? Into the file `ip_addresses.txt`. We should be able to now `cat` a local file like so:
+
+```bash
+cat ip_addresses.txt
+
+104.18.25.143
+104.18.24.143
+```
+
+Let’s summarize what we know so far:
+
+- output is typically delegated to [file descriptors](https://en.wikipedia.org/wiki/File_descriptor) like `stdout` and `stderr` from our program and help us classify if something went wrong or be able to sift through log statements.
+- we have a lot of options for redirecting output of our program and can even target files explicitly if we aren’t interested in printing them directly to the console.
+
+# Pipes
+
+Now that we have a decent amount of knowledge regarding [file descriptors](https://en.wikipedia.org/wiki/File_descriptor) and output redirection, let’s talk about pipes. In Go specifically, an `io.Pipe` is a type that allows for communication between two goroutines. The reason we call this a pipe is because the output of one goroutine “pipes” into the input of another. 
+
+A common use-case for this would be to capture the output of a command and wait for the results to print. Let’s extend our toy example.
+
+```go
+reader, writer := io.Pipe()
+cmd := exec.Command("dig", "ryan-schachte.com", "+short")
+cmd.Stdout = writer
+
+go func() {
+    defer writer.Close()
+    cmd.Run()
+		time.Sleep(10 * time.Second)
+}()
+
+output, _ := ioutil.ReadAll(reader)
+fmt.Println(string(output))
+```
+
+In this example, we kick off a goroutine immediately, which is non-blocking. This runs the command, which could take some variable amount of time. I intentionally added a sleep timer so we can evaluate the blocking behavior of the reads. 
+
+In this case, we will continue writing things from the goroutine. Remember, this routine is separate from the calling routine, but for clarity, we are keeping them within the same file. The output won’t be printed to the console until the writer is closed. As you run this, you’ll see that we run the command, wait 10 seconds, close the writer, THEN output the IP addresses. 
+
+The key takeaway in this example is that communication is happening between two goroutines executing concurrently, but despite their concurrent execution, they have some synchronous communication. 
+
+# Beyond toy examples with concurrent file uploads and chunking
+
+Toy examples are fun, but let’s dig into a real-world scenario where this could be useful. Let’s say I have a large file that I want to upload to [Cloudflare R2](https://developers.cloudflare.com/r2/get-started/). R2 is an object-storage provider similar to GCS or S3. 
+
+Given physical and virtual constraints, I can’t simply toss a massive 10GB video file into storage. Additionally, if I am fetching this file from one location and uploading to R2, I wouldn’t download 10GB and upload 10GB. To resolve these scenarios, it might make sense to invoke some `range requests` to the object resource or specify some pre-defined chunk-size. This gives me the ability to process micro-chunks of a file. In the face of a failure when uploading, I may have some logic like exponential backoff to reupload a failed file (see TUS to learn more about these types of uploads). 
+
+## Architecture
+
+We will kick off a goroutine that is solely responsible for uploading chunks of our file. This will run as some background routine that is invoked only once during the initialization of our program. 
+
+From the calling thread, we will continuously write chunks to our pipe, which the background routine has a pointer to. From here, chunks will incrementally get processed to R2 and be uploaded. 
+
+### Defining our data
+
+```go
+type S3WriteCloser struct {
+	Part        int
+	WriteCloser io.WriteCloser
+}
+
+type S3Metadata struct {
+	BucketName    string
+	Key           string
+	ContentLength int
+	wg            *sync.WaitGroup
+}
+```
+
+To keep things clear, we will encapsulate some metadata about our upload. The `S3WriteCloser` will have a reference to the writer, which writes the actual bytes to the pipe. Additionally, we will track the part number, which will be the number of unique chunks we send over the wire. 
+
+`S3Metadata` just stores some simple information like file size (useful for content-length HTTP header), upload path and a `wait group`. To prevent our program from terminating before the upload completes, we will synchronize the upload results to the main goroutine via a WaitGroup (this will make more sense soon). 
+
+### Preparing our uploader and source object
+
+We want to have a reference to the file we want to upload and then initialize the uploader responsible for interfacing with [Cloudflare R2](https://developers.cloudflare.com/r2/get-started/). Given that R2 replicates the AWS S3 API, we will use the official AWS V1 SDK for Go. 
+
+```go
+// Prevents early termination of the program while 
+// background upload is processing
+var wg sync.WaitGroup
+wg.Add(1)
+
+// Source file that we want to chunk and upload
+file, err := os.Open(SAMPLE_FILE)
+if err != nil {
+	fmt.Println("Failed to open file", err)
+	return
+}
+
+// only necesary for PutObject requests that need content-length header
+stat, err := file.Stat()
+if err != nil {
+	fmt.Println("Failed to open file", err)
+	return
+}
+
+uploader := getUploader(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY)
+```
+
+where `getUploader` simply constructs the S3 uploader.
+
+```go
+// getUploader returns uploader instance to interface with R2
+func getUploader(accountId, accessKey, secretKey string) *s3manager.Uploader {
+	endpoint := fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountId)
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+		Endpoint:    &endpoint,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return s3manager.NewUploader(sess)
+}
+```
+
+## Handling the writing
+
+We will start with the writing before the reading. This will make sense in a moment. We now must create some reference to a pipe writer that our calling thread can push chunks into. 
+
+```go
+// writer will be invoked for each part of the file that we want
+// to upload in parallel
+func writer(uploader *s3manager.Uploader, metadata S3Metadata) *S3WriteCloser {
+	r, w := io.Pipe()
+	writeCloser := S3WriteCloser{
+		Part:        1,
+		WriteCloser: w,
+	}
+
+	go func(uploader *s3manager.Uploader, reader *io.PipeReader, metadata S3Metadata) {
+		err := processUpload(uploader, r, metadata)
+		if err != nil {
+			log.Fatal("error uploading to R2", err)
+		}
+		fmt.Printf("Uploaded a total of %d parts\n", writeCloser.Part)
+	}(uploader, r, metadata)
+
+	return &writeCloser
+}
+```
+
+We have the `uploader` from the previous section, the `metadata` from the first section. We begin by initializing an `io.Pipe()`. This is cool because we get a reader and a writer. 
+
+As you see, I attach the writer to the `writerCloser` and return this. Because this pipe allows communication between threads, I can write data from anywhere and some other goroutine can retrieve those bytes. 
+
+Now, before returning, I immediately invoke the upload code. However, you may be wondering, how can we upload something if we haven’t written any data! Well, the simple answer is that the reader is blocking until we close the writer. Given that the writer is still open, this thread will wait for chunks and write them as they come in.
+
+Let’s take a look at the `processUpload` call above.
+
+```go
+// processUpload will handle chunks of multipart uploads and will complete
+// once the io writer is closed
+func processUpload(
+	uploader *s3manager.Uploader,
+	reader *io.PipeReader,
+	metadata S3Metadata,
+) error {
+	fmt.Println("Uploading to R2")
+	upload := func() error {
+		_, err := uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String(metadata.BucketName),
+			Key:    aws.String(metadata.Key),
+			Body:   aws.ReadSeekCloser(reader),
+		})
+		if err == nil {
+			metadata.wg.Done()
+		}
+		return err
+	}
+
+	if err := upload(); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+```
+
+Now, there looks like a lot is happening here but it’s pretty straight forward. The first thing we do is upload the object. However, notice that the `body` of the request is our pipe reader. This pipe reader is *blocking* until the writer is closed. Within the AWS SDK, chunked uploads will be happening in parallel using the `MultiPartUpload` functionality. Until the pipe writer is closed, this will keep waiting to receive more chunks. 
+
+Once we close the writer, we then decrement the wait group and program is free to terminate.
+
+## Chunking our file
+
+As mentioned previously, uploading a 10GB file would never work in the real-world. As a result, we can process micro-chunks, let’s say 1mb of data. This is not only more suitable for resiliency, but reduces network congestion. 
+
+Now that we have our write logic complete, let’s incrementally push bytes of data to the pipe and have R2 upload them to Cloudflare. 
+
+Let’s show a full overview of our `main` function.
+
+```go
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	file, err := os.Open(SAMPLE_FILE)
+	if err != nil {
+		fmt.Println("Failed to open file", err)
+		return
+	}
+
+	// only necesary for PutObject requests that need content-length header
+	stat, err := file.Stat()
+	if err != nil {
+		fmt.Println("Failed to open file", err)
+		return
+	}
+
+	uploader := getUploader(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY)
+	closer := writer(uploader, S3Metadata{
+		BucketName:    BUCKET_NAME,
+		Key:           SAMPLE_FILE,
+		ContentLength: int(stat.Size()),
+		wg:            &wg,
+	})
+
+	// simulate range requests or chunking here
+	buffer := make([]byte, 1024*1024)
+	for {
+		_, err = file.Read(buffer)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println("Error reading file:", err)
+			return
+		}
+
+		n, err := closer.WriteCloser.Write(buffer)
+		closer.Part++
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Wrote %d mb\n", n/1024)
+	}
+
+	closer.WriteCloser.Close()
+	fmt.Println("Waiting for Upload to complete...")
+	wg.Wait()
+	fmt.Println("Upload Completed")
+}
+```
+
+As you see, I’ve created a memory buffer of 1MB. This means that I will send 1MB of my file in each upload request. Within the loop, I read sequential bytes of my file and push them to the pipe. The `Part` allows me to see how many chunks I’m actually processing. 
+
+Once the iteration of the file is complete, I’m free to close the writer. This then tells the reader it’s done receiving data and the upload can complete. Looking back at the upload logic, the wait group decrements and the program terminates successfully. 
+
+# Complete Example
+
+[https://github.com/Schachte/R2_Multipart_Uploads](https://github.com/Schachte/R2_Multipart_Uploads)
+
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"sync"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+)
+
+const ACCESS_KEY = ""
+const SECRET_KEY = ""
+const ACCOUNT_ID = ""
+const SAMPLE_FILE = ""
+const BUCKET_NAME = ""
+
+type S3WriteCloser struct {
+	Part        int
+	WriteCloser io.WriteCloser
+}
+
+type S3Metadata struct {
+	BucketName    string
+	Key           string
+	ContentLength int
+	wg            *sync.WaitGroup
+}
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	file, err := os.Open(SAMPLE_FILE)
+	if err != nil {
+		fmt.Println("Failed to open file", err)
+		return
+	}
+
+	// only necesary for PutObject requests that need content-length header
+	stat, err := file.Stat()
+	if err != nil {
+		fmt.Println("Failed to open file", err)
+		return
+	}
+
+	uploader := getUploader(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY)
+	closer := writer(uploader, S3Metadata{
+		BucketName:    BUCKET_NAME,
+		Key:           SAMPLE_FILE,
+		ContentLength: int(stat.Size()),
+		wg:            &wg,
+	})
+
+	// simulate range requests or chunking here
+	buffer := make([]byte, 1024*1024)
+	for {
+		_, err = file.Read(buffer)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println("Error reading file:", err)
+			return
+		}
+
+		n, err := closer.WriteCloser.Write(buffer)
+		closer.Part++
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Wrote %d mb\n", n/1024)
+	}
+
+	closer.WriteCloser.Close()
+	fmt.Println("Waiting for Upload to complete...")
+	wg.Wait()
+	fmt.Println("Upload Completed")
+}
+
+// writer will be invoked for each part of the file that we want
+// to upload in parallel
+func writer(uploader *s3manager.Uploader, metadata S3Metadata) *S3WriteCloser {
+	r, w := io.Pipe()
+	writeCloser := S3WriteCloser{
+		Part:        1,
+		WriteCloser: w,
+	}
+
+	go func(uploader *s3manager.Uploader, reader *io.PipeReader, metadata S3Metadata) {
+		err := processUpload(uploader, r, metadata)
+		if err != nil {
+			log.Fatal("error uploading to R2", err)
+		}
+		fmt.Printf("Uploaded a total of %d parts\n", writeCloser.Part)
+	}(uploader, r, metadata)
+	return &writeCloser
+}
+
+// processUpload will handle chunks of multipart uploads and will complete
+// once the io writer is closed
+func processUpload(
+	uploader *s3manager.Uploader,
+	reader *io.PipeReader,
+	metadata S3Metadata,
+) error {
+	fmt.Println("Uploading to AWS")
+	upload := func() error {
+		_, err := uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String(metadata.BucketName),
+			Key:    aws.String(metadata.Key),
+			Body:   aws.ReadSeekCloser(reader),
+		})
+		if err == nil {
+			metadata.wg.Done()
+		}
+		return err
+	}
+
+	if err := handleBucketCreation(uploader, metadata.BucketName); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if err := upload(); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
+func handleBucketCreation(uploader *s3manager.Uploader, bucket string) error {
+	createBucketInput := &s3.CreateBucketInput{
+		CreateBucketConfiguration: &s3.CreateBucketConfiguration{
+			LocationConstraint: aws.String("hint:WNAM"),
+		},
+		Bucket: aws.String(bucket),
+	}
+	_, err := uploader.S3.CreateBucket(createBucketInput)
+	return err
+}
+
+// getUploader returns uploader instance to interface with R2
+func getUploader(accountId, accessKey, secretKey string) *s3manager.Uploader {
+	endpoint := fmt.Sprintf("https://%s.r2.cloudflarestorage.com", accountId)
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+		Endpoint:    &endpoint,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return s3manager.NewUploader(sess)
+}
+```
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
