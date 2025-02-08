@@ -34,16 +34,16 @@ const Navigation: React.FC = () => {
           <img src="/icons/logo.svg" className="w-12 -mt-2" />
           <div className="group-hover:opacity-50 duration-200 transition-all ease-in-out">
             <span className="font-semibold text-4xl drop-shadow-xl group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-cyan-400 group-hover:bg-clip-text group-hover:text-transparent">
-              {'./ryan-'}
+              {'./jhonleo-'}
             </span>
             <span className="font-thin text-4xl drop-shadow-xl group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-cyan-400 group-hover:bg-clip-text group-hover:text-transparent">
-              schachte
+              hilario
             </span>
           </div>
         </div>
       </Link>
       <span className="font-fira sm:pl-3 mt-5 text-xs text-light-text-primary dark:text-dark-inactive">
-        {'$ sh echo “blah blah blah” > /dev/null'}
+        {'blogs and my daily life '}
       </span>
 
       {/* Links and Nav */}
