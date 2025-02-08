@@ -5,7 +5,7 @@ export default function Contact() {
         <>
             <Layout>
                 <div className="flex flex-col justify-center sm:items-start mt-5 w-full md:w-2/3 pl-8 text-base">
-                    <span className="mt-2 font-fira text-xs text-center text-light-inactive dark:text-dark-inactive">{"📨 Reach out and let’s chat. In Santa Barbara, CA? Let’s grab a coffee!"}</span>
+                    <span className="mt-2 font-fira text-xs text-center text-light-inactive dark:text-dark-inactive">{"📨 Reach out and let’s chat."}</span>
                     <div className="mt-8 w-full flex flex-col space-y-4 pr-5">
                         <input type="email" placeholder="email" required className="font-fira text-lg bg-transparent border-slate-600 border rounded p-2 focus:outline-none dark:focus-within:bg-[#35404E] dark:hover:bg-[#35404E] duration-100 transition-bg" />
                         <textarea required placeholder="👋" className="bg-transparent font-fira leading-6 border-slate-600 border rounded p-2 focus:outline-none h-80 dark:focus-within:bg-[#35404E] dark:hover:bg-[#35404E] duration-100 transition-bg" />
