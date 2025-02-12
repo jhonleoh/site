@@ -31,7 +31,7 @@ export default function Home({
             return (
               <Article
                 key={i}
-                title={title.toLowerCase()}
+                title={title}
                 date={date}
                 tag={tag}
                 link={link}
