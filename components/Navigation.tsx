@@ -62,14 +62,14 @@ const Navigation: React.FC = () => {
               </span>
             </Link>
             <Link
-              href={`https://www.youtube.com/c/thesimpleengineer`}
+              href={`https://www.facebook.com/Cavcount`}
               target="_blank"
               rel="noreferrer"
             >
               <span
                 className={`hover:bg-gradient-to-r hover:from-indigo-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent`}
               >
-                youtube
+                facebook
               </span>
             </Link>
             <Link href={`/contact`}>
