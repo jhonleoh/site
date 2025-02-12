@@ -15,7 +15,7 @@ type Props = {
 const PostLayout: React.FC<Props> = ({ meta, children }) => {
   let { title, author, tag } = meta
   title = title.toLowerCase()
-  author = author()
+  author = author.toLowerCase()
   tag = tag.toLowerCase()
 
   return (
