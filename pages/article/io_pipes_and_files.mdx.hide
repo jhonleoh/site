@@ -2,7 +2,7 @@ import PostLayout from '../../components/mdx/PostLayout.tsx'
 
 export const meta = {
     title: 'having fun with IO pipes and chunked file uploads in Go',
-    author: 'ryan schachte',
+    author: 'Jhon Leo Hilario',
     tag: 'Go',
     date: 'January 24, 2023',
     publish_after: ''
